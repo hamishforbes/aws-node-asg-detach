@@ -36,7 +36,6 @@ type Controller struct {
 func NewController(queue workqueue.RateLimitingInterface, indexer cache.Indexer, informer cache.Controller) *Controller {
 	// Load session from shared config
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config:            aws.Config{Region: aws.String("us-west-2")},
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
@@ -58,15 +57,14 @@ func (c *Controller) processNextItem() bool {
 	// Tell the queue that we are done with processing this key. This unblocks the key for other workers
 	defer c.queue.Done(key)
 
-	// Invoke the method containing the business logic
-	err := c.syncToStdout(key.(string))
-	// Handle the error if something went wrong during the execution of the business logic
+	err := c.handleEvent(key.(string))
+
 	c.handleErr(err, key)
 	return true
 }
 
-// syncToStdout is the business logic of the controller.
-func (c *Controller) syncToStdout(key string) error {
+// handleEvent is the business logic of the controller.
+func (c *Controller) handleEvent(key string) error {
 	obj, exists, err := c.indexer.GetByKey(key)
 	if err != nil {
 		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
@@ -101,7 +99,7 @@ func (c *Controller) syncToStdout(key string) error {
 		InstanceIds: []*string{&instanceId},
 	})
 	if err != nil {
-		klog.Error("[%s] Failed to fetch instance from AWS API", nodeName, err)
+		klog.Errorf("[%s] Failed to fetch instance from AWS API", nodeName, err)
 		return nil
 	}
 
@@ -155,7 +153,7 @@ func (c *Controller) syncToStdout(key string) error {
 		return nil
 	}
 
-	klog.Infof("[%s] Instance Detached: %s", nodeName, detach.Activities[0].Description)
+	klog.Infof("[%s] Instance Detached: %s", nodeName, *detach.Activities[0].Description)
 
 	return nil
 }
