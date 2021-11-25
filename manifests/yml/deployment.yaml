@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::YOUR_ROLE_HERE
+  labels:
+    app: aws-node-asg-detach
+  name: aws-node-asg-detach
+  namespace: kube-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: aws-node-asg-detach
+  name: aws-node-asg-detach
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: aws-node-asg-detach
+  template:
+    metadata:
+      labels:
+        name: aws-node-asg-detach
+    spec:
+      containers:
+      - image: REPLACE_WITH_REGISTRY/aws-node-asg-detach:latest
+        name: aws-node-asg-detach
+        resources:
+          limits:
+            cpu: 50m
+            memory: 32Mi
+          requests:
+            cpu: 50m
+            memory: 32Mi
+      serviceAccountName: aws-node-asg-detach
