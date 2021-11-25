@@ -23,6 +23,7 @@ spec:
   template:
     metadata:
       labels:
+        app: aws-node-asg-detach
         name: aws-node-asg-detach
     spec:
       containers:
