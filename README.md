@@ -26,24 +26,14 @@ Requires permissions to describe instances and detach instances from ASG
         "ec2:DescribeInstances",
         "ec2:DescribeTags"
       ],
-      "Resource": "*",
-      "Condition": {
-        "StringLike": {
-          "ec2:ResourceTag/kubernetes.io/cluster/*": "owned"
-        }
-      }
+      "Resource": "*"
     },
     {
       "Effect": "Allow",
       "Action": [
         "autoscaling:DetachInstances"
       ],
-      "Resource": "*",
-      "Condition": {
-        "StringLike": {
-          "ec2:ResourceTag/kubernetes.io/cluster/*": "owned"
-        }
-      }
+      "Resource": "*"
     }
   ]
 }
